@@ -1,0 +1,32 @@
+name: 'Code Review Action'
+description: 'Runs code review'
+author: 'me'
+
+inputs:
+  api-key:
+    description: 'API key for the Codex service (e.g., OpenAI API key or your SaaS license key). This will be used as OPENAI_API_KEY in the container.'
+    required: true
+
+runs:
+  using: 'docker'
+  # Replace with your actual public image path on GHCR or Docker Hub
+  # Example: image: 'docker://ghcr.io/rspcunningham/codex-review-image:v1.0.0'
+  image: 'docker://ghcr.io/YOUR_USERNAME/YOUR_IMAGE_NAME:YOUR_TAG' 
+  env:
+    # Pass inputs to the Docker container
+    INPUT_API_KEY: ${{ inputs.api-key }}
+
+    # Pass GitHub context information for scripts inside Docker
+    GITHUB_TOKEN: ${{ github.token }}
+    GITHUB_REPOSITORY: ${{ github.repository }}
+    GITHUB_EVENT_NAME: ${{ github.event_name }}
+    GITHUB_EVENT_PATH: ${{ github.event_path }}
+    GITHUB_SHA: ${{ github.sha }}
+    GITHUB_REF: ${{ github.ref }}
+    GITHUB_HEAD_REF: ${{ github.head_ref }}
+    GITHUB_BASE_REF: ${{ github.base_ref }}
+    PR_NUMBER: ${{ github.event.pull_request.number }}
+
+branding:
+  icon: 'code'
+  color: 'blue' 
