@@ -11,7 +11,7 @@ runs:
   using: 'docker'
   # Replace with your actual public image path on GHCR or Docker Hub
   # Example: image: 'docker://ghcr.io/rspcunningham/codex-review-image:v1.0.0'
-  image: 'docker://ghcr.io/YOUR_USERNAME/YOUR_IMAGE_NAME:YOUR_TAG' 
+  image: 'docker://ghcr.io/rspcunningham/code-review-test:latest' 
   env:
     # Pass inputs to the Docker container
     INPUT_API_KEY: ${{ inputs.api-key }}
