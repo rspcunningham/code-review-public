@@ -23,6 +23,7 @@ runs:
       shell: bash
       run: |
         docker run --rm \
+          --platform linux/amd64 \
           -e OPENAI_API_KEY=${{ inputs.api-key }} \
           -v "${{ github.workspace }}":/github/workspace \
           -w /github/workspace \
