@@ -16,8 +16,6 @@ runs:
     - name: Pull Docker Image
       shell: bash
       run: docker pull ghcr.io/rspcunningham/code-review-test:latest
-      # This command will use the Docker login session established by
-      # docker/login-action in the calling workflow.
 
     - name: Run Code Review Container
       shell: bash
@@ -30,62 +28,60 @@ runs:
           ghcr.io/rspcunningham/code-review-test:latest
 
     - name: Comment on PR
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const reviewFilePath = 'CODE_REVIEW.md';
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const reviewFilePath = 'CODE_REVIEW.md';
 
-            if (!fs.existsSync(reviewFilePath)) {
-              core.setFailed(`Error: ${reviewFilePath} not found. Codex review may have failed to produce an output.`);
-            } else {
-              const body = fs.readFileSync(reviewFilePath, 'utf8');
+          if (!fs.existsSync(reviewFilePath)) {
+            core.setFailed(`Error: ${reviewFilePath} not found. Codex review may have failed to produce an output.`);
+          } else {
+            const body = fs.readFileSync(reviewFilePath, 'utf8');
 
-              await github.rest.pulls.createReview({
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              body,
+              event: 'COMMENT' // or 'APPROVE' or 'REQUEST_CHANGES'
+            });
+          }
+
+    - name: Post inline review comments
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const commentFilePath = 'CODE_REVIEW.json';
+
+          const reviewItems = JSON.parse(fs.readFileSync(commentFilePath, 'utf8'));
+          const pr = context.payload.pull_request;
+          const sha = pr.head.sha;
+          for (const item of reviewItems) {
+            try {
+              const commentPayload = {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: context.payload.pull_request.number,
-                body,
-                event: 'COMMENT' // or 'APPROVE' or 'REQUEST_CHANGES'
-              });
-            }
+                pull_number: pr.number,
+                commit_id: sha,
+                path: item.path,
+                body: item.body,
+                line: item.line,
+                side: item.side || 'RIGHT'
+              };
 
-      - name: Post inline review comments
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const commentFilePath = 'CODE_REVIEW.json';
-
-            const reviewItems = JSON.parse(fs.readFileSync(commentFilePath, 'utf8'));
-            const pr = context.payload.pull_request;
-            const sha = pr.head.sha;
-            for (const item of reviewItems) {
-              try {
-                const commentPayload = {
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: pr.number,
-                  commit_id: sha,
-                  path: item.path,
-                  body: item.body,
-                  line: item.line,
-                  side: item.side || 'RIGHT'
-                };
-
-                if (item.start_line) {
-                  commentPayload.start_line = item.start_line;
-                  commentPayload.start_side = item.start_side || item.side || 'RIGHT'; // Default start_side if not given
-                }
-
-                await github.rest.pulls.createReviewComment(commentPayload);
-              } catch (error) {
-                core.warning(`Could not post inline comment at ${item.path}:${item.line} — ${error.message}`);
+              if (item.start_line) {
+                commentPayload.start_line = item.start_line;
+                commentPayload.start_side = item.start_side || item.side || 'RIGHT'; // Default start_side if not given
               }
+
+              await github.rest.pulls.createReviewComment(commentPayload);
+            } catch (error) {
+              core.warning(`Could not post inline comment at ${item.path}:${item.line} — ${error.message}`);
             }
-
-
+          }
 
 branding:
   icon: 'code'
-  color: 'blue' 
+  color: 'blue'
