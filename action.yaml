@@ -16,17 +16,6 @@ runs:
     # Pass inputs to the Docker container
     INPUT_API_KEY: ${{ inputs.api-key }}
 
-    # Pass GitHub context information for scripts inside Docker
-    GITHUB_TOKEN: ${{ github.token }}
-    GITHUB_REPOSITORY: ${{ github.repository }}
-    GITHUB_EVENT_NAME: ${{ github.event_name }}
-    GITHUB_EVENT_PATH: ${{ github.event_path }}
-    GITHUB_SHA: ${{ github.sha }}
-    GITHUB_REF: ${{ github.ref }}
-    GITHUB_HEAD_REF: ${{ github.head_ref }}
-    GITHUB_BASE_REF: ${{ github.base_ref }}
-    PR_NUMBER: ${{ github.event.pull_request.number }}
-
 branding:
   icon: 'code'
   color: 'blue' 
