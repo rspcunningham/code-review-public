@@ -1,7 +1,5 @@
 name: 'Code Review Action'
 description: 'Runs code review'
-name: 'Code Review Action (Composite)'
-description: 'Runs code review by explicitly pulling and running a Docker image.'
 author: 'me'
 
 inputs:
