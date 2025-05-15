@@ -6,6 +6,9 @@ inputs:
   api-key:
     description: 'API key for the Codex service (e.g., OpenAI API key or your SaaS license key). This will be used as OPENAI_API_KEY in the container.'
     required: true
+  pat-key: 
+    description: 'GitHub PAT'
+    required: true
 
 runs:
   using: 'docker'
